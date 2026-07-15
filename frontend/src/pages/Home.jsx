@@ -79,7 +79,7 @@ const Home = () => {
               <HiSparkles className="w-4 h-4 text-purple-600" /> Supercharged by AI
             </div>
             <h1 className="text-4xl md:text-6xl font-extrabold text-[var(--color-secondary)] leading-tight mb-4">
-              Your Local Room Finder,
+              Your Local Rental Search,
               <span className="text-gradient block mt-1">Now Much Smarter</span>
             </h1>
             <p className="text-lg text-gray-600 mb-8 max-w-xl mx-auto leading-relaxed">
@@ -162,7 +162,7 @@ const Home = () => {
               <HiSparkles className="w-6 h-6" />
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-[var(--color-secondary)] mb-4">Rental Superpowers</h2>
-            <p className="text-lg text-gray-500 max-w-2xl mx-auto">We're a local room finder at heart, but we've added cutting-edge AI to eliminate the usual renting headaches.</p>
+            <p className="text-lg text-gray-500 max-w-2xl mx-auto">We're a local rental search at heart, but we've added cutting-edge AI to eliminate the usual renting headaches.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
