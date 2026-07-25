@@ -9,7 +9,7 @@ import { HiOutlineMenu, HiOutlineX, HiOutlineBell, HiOutlineUser, HiOutlineLogou
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useSelector((s) => s.auth);
+  const { user, isAuthenticated, initialLoading } = useSelector((s) => s.auth);
   const { unreadCount } = useSelector((s) => s.notifications);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -54,7 +54,12 @@ const Navbar = () => {
               <HiOutlineSearch className="w-4 h-4" /> Search
             </Link>
 
-            {isAuthenticated ? (
+            {initialLoading ? (
+              <div className="flex items-center gap-4 animate-pulse">
+                <div className="w-20 h-5 bg-gray-200 rounded"></div>
+                <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+              </div>
+            ) : isAuthenticated ? (
               <>
                 <Link to={getDashboardLink()} className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[var(--color-primary)] transition-colors">
                   <HiOutlineViewGrid className="w-4 h-4" /> Dashboard
@@ -129,7 +134,12 @@ const Navbar = () => {
           <div className="md:hidden pb-4 fade-in border-t border-gray-100">
             <div className="flex flex-col gap-1 pt-3">
               <Link to="/search" className="px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50" onClick={() => setMobileOpen(false)}>🔍 Search Rooms</Link>
-              {isAuthenticated ? (
+              {initialLoading ? (
+                <div className="px-3 py-2.5 flex flex-col gap-3 animate-pulse">
+                  <div className="w-1/3 h-6 bg-gray-100 rounded"></div>
+                  <div className="w-1/3 h-6 bg-gray-100 rounded"></div>
+                </div>
+              ) : isAuthenticated ? (
                 <>
                   <Link to={getDashboardLink()} className="px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50" onClick={() => setMobileOpen(false)}>📊 Dashboard</Link>
                   <Link to="/profile" className="px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50" onClick={() => setMobileOpen(false)}>👤 Profile</Link>
