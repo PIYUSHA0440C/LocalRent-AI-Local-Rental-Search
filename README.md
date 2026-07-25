@@ -9,27 +9,33 @@
     <a href="#about-the-project"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://localrent-ai-room-finder.onrender.com/">
-      <img src="https://img.shields.io/badge/Live_Demo_(Render)-2563EB?style=for-the-badge&logo=render&logoColor=white" alt="Live Demo (Render)" />
+    <a href="https://localrent-pi.vercel.app/">
+      <img src="https://img.shields.io/badge/Live_Demo_(Vercel_--_Primary)-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo (Vercel - Primary)" />
     </a>
     &nbsp;
-    <a href="https://localrent.vercel.app/">
-      <img src="https://img.shields.io/badge/Live_Demo_(Vercel)-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo (Vercel)" />
+    <a href="https://localrent-ai-room-finder.onrender.com/">
+      <img src="https://img.shields.io/badge/Live_Demo_(Render_--_Backup)-2563EB?style=for-the-badge&logo=render&logoColor=white" alt="Live Demo (Render - Backup)" />
     </a>
     <br />
     <br />
-    <a href="https://localrent-ai-room-finder.onrender.com/">View Demo (Render)</a> · <a href="https://localrent.vercel.app/">View Demo (Vercel)</a>
+    <a href="https://localrent-pi.vercel.app/"><strong>View Demo (Vercel - Primary)</strong></a> · <a href="https://localrent-ai-room-finder.onrender.com/">View Demo (Render - Backup)</a>
   </p>
 </div>
 
 <!-- BADGES -->
 <div align="center">
   <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/Redux-593D88?style=for-the-badge&logo=redux&logoColor=white" alt="Redux" />
   <img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E" alt="Vite" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" />
+  <br />
   <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" alt="Node" />
   <img src="https://img.shields.io/badge/Express.js-404D59?style=for-the-badge" alt="Express" />
   <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white" alt="JWT" />
+  <img src="https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white" alt="Gemini" />
+  <img src="https://img.shields.io/badge/Resend-000000?style=for-the-badge&logo=resend&logoColor=white" alt="Resend" />
+  <img src="https://img.shields.io/badge/ImageKit-232F3E?style=for-the-badge&logoColor=white" alt="ImageKit" />
 </div>
 
 <br />
