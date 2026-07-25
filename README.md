@@ -10,11 +10,15 @@
     <br />
     <br />
     <a href="https://localrent-ai-room-finder.onrender.com/">
-      <img src="https://img.shields.io/badge/Live_Demo-2563EB?style=for-the-badge&logo=render&logoColor=white" alt="Live Demo" />
+      <img src="https://img.shields.io/badge/Live_Demo_(Render)-2563EB?style=for-the-badge&logo=render&logoColor=white" alt="Live Demo (Render)" />
+    </a>
+    &nbsp;
+    <a href="https://localrent.vercel.app/">
+      <img src="https://img.shields.io/badge/Live_Demo_(Vercel)-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo (Vercel)" />
     </a>
     <br />
     <br />
-    <a href="https://localrent-ai-room-finder.onrender.com/">View Demo</a>
+    <a href="https://localrent-ai-room-finder.onrender.com/">View Demo (Render)</a> · <a href="https://localrent.vercel.app/">View Demo (Vercel)</a>
   </p>
 </div>
 
@@ -162,11 +166,13 @@ The backend handles the API, database operations, and third-party services.
 
 ## Production Deployment
 
-LocalRent is optimized for **Monolithic Deployment**. The Express backend is configured to statically serve the compiled React frontend, meaning you only need to deploy a single web service.
+LocalRent supports **two deployment strategies** from the same codebase:
 
-### Hosting Guide (e.g., Render, Heroku)
+### Strategy 1: Monolith on Render (Current)
 
-1. Connect your GitHub repository to your hosting provider.
+The Express backend statically serves the compiled React frontend — only a single web service is needed.
+
+1. Connect your GitHub repository to Render.
 2. Set the **Build Command** to:
    ```bash
    npm run build
@@ -176,11 +182,24 @@ LocalRent is optimized for **Monolithic Deployment**. The Express backend is con
    ```bash
    npm start
    ```
-   *(This starts the backend server in production mode).*
-4. Add all environment variables from the `backend/.env` template to your hosting provider's dashboard.
-   *Note: If using Render, the application auto-detects `RENDER_EXTERNAL_URL` for email links, so `CLIENT_URL` is not required.*
+4. Add all environment variables from the `backend/.env` template to Render's dashboard.
+   *Note: Render auto-detects `RENDER_EXTERNAL_URL` for CORS, so `CLIENT_URL` is not required.*
 
----
+> **Live (Render):** [https://localrent-ai-room-finder.onrender.com](https://localrent-ai-room-finder.onrender.com)
+
+### Strategy 2: Frontend on Vercel + Backend on Render
+
+The frontend is deployed as a static Vite build on Vercel. API requests (`/api/*`) are proxied to the existing Render backend via Vercel rewrites — no code changes needed.
+
+1. Import the GitHub repository on [vercel.com](https://vercel.com).
+2. Vercel will auto-detect the `vercel.json` config — no manual build/output settings needed.
+3. The `vercel.json` already has the Render backend URL configured for API rewrites.
+4. *(Optional)* To enable direct API access from the Vercel domain, add the Vercel URL to the `CLIENT_URL` environment variable on Render (comma-separated):
+   ```
+   CLIENT_URL=https://localrent-ai-room-finder.onrender.com,https://your-app.vercel.app
+   ```
+
+
 
 ## Project Structure
 

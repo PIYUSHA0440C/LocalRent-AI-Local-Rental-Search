@@ -11,7 +11,12 @@ const config = {
     accessExpiry: process.env.JWT_ACCESS_EXPIRY || '15m',
     refreshExpiry: process.env.JWT_REFRESH_EXPIRY || '7d',
   },
-  clientUrl: process.env.CLIENT_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:5173',
+  // Supports multiple origins (comma-separated) for multi-platform deployment (Render + Vercel)
+  clientUrl: process.env.CLIENT_URL
+    ? process.env.CLIENT_URL.split(',').map(u => u.trim())
+    : process.env.RENDER_EXTERNAL_URL
+      ? [process.env.RENDER_EXTERNAL_URL]
+      : ['http://localhost:5173'],
   imagekit: {
     publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
     privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
