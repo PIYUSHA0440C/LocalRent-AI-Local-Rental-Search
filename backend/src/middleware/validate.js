@@ -45,6 +45,30 @@ export const validateLogin = validate((body) => {
   return { isValid: errors.length === 0, errors };
 });
 
+export const validateForgotPassword = validate((body) => {
+  const errors = [];
+
+  if (!body.email || !/^\S+@\S+\.\S+$/.test(body.email)) {
+    errors.push('Please enter a valid email');
+  }
+
+  return { isValid: errors.length === 0, errors };
+});
+
+export const validateResetPassword = validate((body, params) => {
+  const errors = [];
+  const token = params?.token || body?.token;
+
+  if (!token) {
+    errors.push('Reset token is required');
+  }
+  if (!body.password || body.password.length < 6) {
+    errors.push('Password must be at least 6 characters');
+  }
+
+  return { isValid: errors.length === 0, errors };
+});
+
 export const validateListing = validate((body) => {
   const errors = [];
 

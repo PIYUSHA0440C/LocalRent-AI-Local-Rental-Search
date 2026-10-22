@@ -81,3 +81,18 @@ export const verifyEmail = async (req, res) => {
 export const getMe = async (req, res) => {
   res.json({ user: req.user });
 };
+
+// POST /api/auth/forgot-password
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  const result = await authService.forgotPassword(email);
+  res.json(result);
+};
+
+// POST /api/auth/reset-password/:token
+export const resetPassword = async (req, res) => {
+  const token = req.params.token || req.body.token;
+  const { password } = req.body;
+  const result = await authService.resetPassword(token, password);
+  res.json(result);
+};
