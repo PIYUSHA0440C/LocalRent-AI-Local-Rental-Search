@@ -21,6 +21,8 @@ import Profile from './pages/Profile';
 import AdminPanel from './pages/AdminPanel';
 import VerifyEmail from './pages/VerifyEmail';
 import PublicProfile from './pages/PublicProfile';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -47,6 +49,9 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/search" element={<SearchListings />} />
           <Route path="/listings/:id" element={<ListingDetail />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
