@@ -38,6 +38,12 @@ const Navbar = () => {
     return '/dashboard';
   };
 
+  const getNotificationLink = () => {
+    if (!user) return '/login';
+    if (user.role === 'landlord') return '/dashboard/landlord?tab=bookings';
+    return '/dashboard?tab=notifications';
+  };
+
   return (
     <nav className="sticky top-0 z-50 glass border-b border-white/20" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -66,7 +72,13 @@ const Navbar = () => {
                 </Link>
 
                 {/* Notifications */}
-                <Link to="/dashboard" className="relative text-gray-600 hover:text-[var(--color-primary)] transition-colors" state={{ tab: 'notifications' }}>
+                <Link
+                  to={getNotificationLink()}
+                  state={{ tab: user?.role === 'landlord' ? 'bookings' : 'notifications' }}
+                  className="relative text-gray-600 hover:text-[var(--color-primary)] transition-colors"
+                  id="navbar-notifications-btn"
+                  aria-label={user?.role === 'landlord' ? 'Booking Requests' : 'Notifications'}
+                >
                   <HiOutlineBell className="w-5 h-5" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1.5 -right-1.5 bg-[var(--color-error)] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
@@ -142,6 +154,19 @@ const Navbar = () => {
               ) : isAuthenticated ? (
                 <>
                   <Link to={getDashboardLink()} className="px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50" onClick={() => setMobileOpen(false)}>📊 Dashboard</Link>
+                  <Link
+                    to={getNotificationLink()}
+                    state={{ tab: user?.role === 'landlord' ? 'bookings' : 'notifications' }}
+                    className="px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 flex items-center justify-between"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <span>🔔 {user?.role === 'landlord' ? 'Booking Requests' : 'Notifications'}</span>
+                    {unreadCount > 0 && (
+                      <span className="bg-[var(--color-error)] text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </Link>
                   <Link to="/profile" className="px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50" onClick={() => setMobileOpen(false)}>👤 Profile</Link>
                   <button onClick={() => { handleLogout(); setMobileOpen(false); }} className="px-3 py-2.5 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 text-left border-none bg-transparent cursor-pointer">🚪 Sign Out</button>
                 </>

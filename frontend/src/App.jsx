@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMe } from './store/authSlice';
 
@@ -26,6 +26,7 @@ import ResetPassword from './pages/ResetPassword';
 
 const App = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const { initialLoading, user } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -36,7 +37,15 @@ const App = () => {
   const getDashboardComponent = () => {
     if (!user) return <Navigate to="/login" />;
     if (user.role === 'admin') return <Navigate to="/admin" />;
-    if (user.role === 'landlord') return <Navigate to="/dashboard/landlord" />;
+    if (user.role === 'landlord') {
+      return (
+        <Navigate
+          to={`/dashboard/landlord${location.search}`}
+          state={location.state}
+          replace
+        />
+      );
+    }
     return <TenantDashboard />;
   };
 

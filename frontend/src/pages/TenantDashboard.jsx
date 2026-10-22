@@ -2,17 +2,35 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMyBookings, cancelBooking } from '../store/bookingSlice';
 import { getNotifications, markAsRead, markAllAsRead } from '../store/notificationSlice';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { formatRent, formatDate, statusLabels, timeAgo } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import { HiOutlineCalendar, HiOutlineBell, HiOutlinePhone, HiOutlineStar } from 'react-icons/hi';
 
 const TenantDashboard = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { myBookings, loading, actionLoading } = useSelector((s) => s.bookings);
   const { items: notifications, unreadCount, loading: notiLoading } = useSelector((s) => s.notifications);
-  const [activeTab, setActiveTab] = useState('bookings');
+
+  const initialTab = searchParams.get('tab') || location.state?.tab;
+  const [activeTab, setActiveTab] = useState(
+    initialTab === 'notifications' ? 'notifications' : 'bookings'
+  );
   const [statusFilter, setStatusFilter] = useState('');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab') || location.state?.tab;
+    if (tab && ['bookings', 'notifications'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams, location.state]);
+
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    setSearchParams({ tab: tabId }, { replace: true });
+  };
 
   useEffect(() => {
     dispatch(getMyBookings(statusFilter ? { status: statusFilter } : {}));
@@ -43,7 +61,7 @@ const TenantDashboard = () => {
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleTabChange(tab.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all border-none cursor-pointer ${
               activeTab === tab.id ? 'bg-white shadow-sm text-[var(--color-primary)]' : 'bg-transparent text-gray-600 hover:text-gray-800'
             }`}

@@ -2,19 +2,37 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMyListings, deleteListing } from '../store/listingSlice';
 import { getLandlordBookings, approveBooking, rejectBooking, activateBooking, completeBooking } from '../store/bookingSlice';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { formatRent, formatDate, statusLabels, trustBadgeConfig, timeAgo } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash, HiOutlineCheck, HiOutlineX, HiOutlinePlay, HiOutlineFlag, HiOutlinePhone } from 'react-icons/hi';
 
 const LandlordDashboard = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { myListings, loading: listingsLoading } = useSelector((s) => s.listings);
   const { landlordBookings, loading: bookingsLoading, actionLoading } = useSelector((s) => s.bookings);
-  const [activeTab, setActiveTab] = useState('listings');
+
+  const initialTab = searchParams.get('tab') || location.state?.tab;
+  const [activeTab, setActiveTab] = useState(
+    initialTab === 'bookings' ? 'bookings' : 'listings'
+  );
   const [statusFilter, setStatusFilter] = useState('');
   const [rejectModal, setRejectModal] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab') || location.state?.tab;
+    if (tab && ['listings', 'bookings'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams, location.state]);
+
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    setSearchParams({ tab: tabId }, { replace: true });
+  };
 
   useEffect(() => {
     dispatch(getMyListings({}));
@@ -75,7 +93,7 @@ const LandlordDashboard = () => {
         ].map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleTabChange(tab.id)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border-none cursor-pointer ${
               activeTab === tab.id ? 'bg-white shadow-sm text-[var(--color-primary)]' : 'bg-transparent text-gray-600'
             }`}
