@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMe } from './store/authSlice';
 
@@ -21,9 +21,12 @@ import Profile from './pages/Profile';
 import AdminPanel from './pages/AdminPanel';
 import VerifyEmail from './pages/VerifyEmail';
 import PublicProfile from './pages/PublicProfile';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 const App = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const { initialLoading, user } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -34,7 +37,15 @@ const App = () => {
   const getDashboardComponent = () => {
     if (!user) return <Navigate to="/login" />;
     if (user.role === 'admin') return <Navigate to="/admin" />;
-    if (user.role === 'landlord') return <Navigate to="/dashboard/landlord" />;
+    if (user.role === 'landlord') {
+      return (
+        <Navigate
+          to={`/dashboard/landlord${location.search}`}
+          state={location.state}
+          replace
+        />
+      );
+    }
     return <TenantDashboard />;
   };
 
@@ -47,6 +58,9 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/search" element={<SearchListings />} />
           <Route path="/listings/:id" element={<ListingDetail />} />
           <Route path="/verify-email" element={<VerifyEmail />} />

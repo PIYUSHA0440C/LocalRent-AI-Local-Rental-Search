@@ -37,6 +37,12 @@ class BookingService {
       throw error;
     }
 
+    if (!listing.landlord) {
+      const error = new Error('This listing is no longer available because the host account is inactive');
+      error.statusCode = 400;
+      throw error;
+    }
+
     // Can't book own listing
     if (listing.landlord._id.toString() === tenantId.toString()) {
       const error = new Error('You cannot book your own listing');
@@ -87,25 +93,49 @@ class BookingService {
 
     // Send notification to landlord
     const tenant = await User.findById(tenantId);
-    await notificationService.createNotification({
-      user: listing.landlord._id,
-      type: 'booking_request',
-      title: 'New Booking Request',
-      message: `${tenant.name} has requested to book "${listing.title}"`,
-      relatedBooking: booking._id,
-      relatedListing: listingId,
-    });
+    if (listing.landlord) {
+      await notificationService.createNotification({
+        user: listing.landlord._id,
+        type: 'booking_request',
+        title: 'New Booking Request',
+        message: `${tenant?.name || 'A user'} has requested to book "${listing.title}"`,
+        relatedBooking: booking._id,
+        relatedListing: listingId,
+      });
 
-    if (listing.landlord.email) {
-      await sendBookingEmail(
-        listing.landlord.email,
-        listing.landlord.name,
-        'New Booking Request',
-        `${tenant.name} has requested to book your listing "${listing.title}". Please log in to your dashboard to review it.`
-      );
+      if (listing.landlord.email) {
+        await sendBookingEmail(
+          listing.landlord.email,
+          listing.landlord.name,
+          'New Booking Request',
+          `${tenant?.name || 'A user'} has requested to book your listing "${listing.title}". Please log in to your dashboard to review it.`
+        );
+      }
     }
 
     return populatedBooking;
+  }
+
+  // Check if tenant has an existing active or pending booking for a listing
+  async checkBookingStatus(tenantId, listingId) {
+    const booking = await Booking.findOne({
+      tenant: tenantId,
+      listing: listingId,
+      status: {
+        $in: [
+          BOOKING_STATUSES.REQUESTED,
+          BOOKING_STATUSES.APPROVED,
+          BOOKING_STATUSES.ACTIVE,
+        ],
+      },
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return {
+      hasBooking: !!booking,
+      booking: booking || null,
+    };
   }
 
   // Get tenant's bookings

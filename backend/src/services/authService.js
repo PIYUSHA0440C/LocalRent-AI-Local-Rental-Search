@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import User from '../models/User.js';
 import Token from '../models/Token.js';
 import config from '../config/env.js';
-import { sendVerificationEmail } from './emailService.js';
+import { sendVerificationEmail, sendPasswordResetEmail } from './emailService.js';
 
 class AuthService {
   // Generate JWT access token
@@ -215,6 +215,95 @@ class AuthService {
 
     // Invalidate all refresh tokens to force re-login on other devices
     await Token.deleteMany({ user: userId });
+  }
+
+  // Request password reset link
+  async forgotPassword(email) {
+    if (!email) {
+      const error = new Error('Email is required');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    // Timing and enumeration mitigation:
+    // If user does not exist, return generic success response without error
+    if (!user) {
+      return {
+        message: 'If an account with that email exists, a password reset link has been sent.',
+      };
+    }
+
+    // Generate cryptographically secure random token (32 bytes = 64 hex characters)
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    // Hash the token with SHA-256 before saving to database
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    // Token expires in 30 minutes
+    user.passwordResetToken = hashedToken;
+    user.passwordResetExpires = new Date(Date.now() + 30 * 60 * 1000);
+    await user.save();
+
+    // Construct client reset URL
+    const clientBaseUrl = Array.isArray(config.clientUrl)
+      ? config.clientUrl[0]
+      : (config.clientUrl || 'http://localhost:5173');
+    const resetUrl = `${clientBaseUrl.replace(/\/+$/, '')}/reset-password/${resetToken}`;
+
+    // Send password reset email (non-blocking failure logging)
+    sendPasswordResetEmail(user.email, user.name, resetUrl).catch((err) => {
+      console.error('Failed to send password reset email:', err.message);
+    });
+
+    return {
+      message: 'If an account with that email exists, a password reset link has been sent.',
+    };
+  }
+
+  // Reset password using token
+  async resetPassword(token, newPassword) {
+    if (!token) {
+      const error = new Error('Reset token is required');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    if (!newPassword || newPassword.length < 6) {
+      const error = new Error('New password must be at least 6 characters');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // Hash incoming raw token to compare against hashed token in DB
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    // Find user by valid hashed token and non-expired time
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: new Date() },
+    }).select('+passwordResetToken +passwordResetExpires');
+
+    if (!user) {
+      const error = new Error('Password reset link is invalid or has expired');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // Set new password (pre-save hook will hash with bcrypt)
+    user.password = newPassword;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    // Invalidate all active sessions/refresh tokens for this user
+    await Token.deleteMany({ user: user._id });
+
+    return {
+      message: 'Password has been reset successfully. You can now log in with your new password.',
+    };
   }
 }
 

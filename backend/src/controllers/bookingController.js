@@ -12,6 +12,12 @@ export const getMyBookings = async (req, res) => {
   res.json(result);
 };
 
+// GET /api/bookings/check-status/:listingId
+export const checkBookingStatus = async (req, res) => {
+  const result = await bookingService.checkBookingStatus(req.user._id, req.params.listingId);
+  res.json(result);
+};
+
 // GET /api/bookings/landlord-bookings
 export const getLandlordBookings = async (req, res) => {
   const result = await bookingService.getLandlordBookings(req.user._id, req.query);

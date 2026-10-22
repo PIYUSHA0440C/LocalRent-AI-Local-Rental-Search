@@ -46,6 +46,14 @@ const userSchema = new mongoose.Schema(
       type: Date,
       select: false,
     },
+    passwordResetToken: {
+      type: String,
+      select: false,
+    },
+    passwordResetExpires: {
+      type: Date,
+      select: false,
+    },
     avatar: {
       type: String,
       default: '',
@@ -97,6 +105,7 @@ const userSchema = new mongoose.Schema(
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ role: 1 });
 userSchema.index({ city: 1 });
+userSchema.index({ passwordResetToken: 1 });
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {
@@ -121,6 +130,8 @@ userSchema.methods.toJSON = function () {
   delete obj.password;
   delete obj.emailVerificationToken;
   delete obj.emailVerificationExpiry;
+  delete obj.passwordResetToken;
+  delete obj.passwordResetExpires;
   delete obj.__v;
   return obj;
 };

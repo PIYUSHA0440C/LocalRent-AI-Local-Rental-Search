@@ -73,6 +73,26 @@ export const updateAvatar = createAsyncThunk('auth/updateAvatar', async (formDat
   }
 });
 
+// Forgot password
+export const forgotPassword = createAsyncThunk('auth/forgotPassword', async (email, { rejectWithValue }) => {
+  try {
+    const response = await api.post('/auth/forgot-password', { email });
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to request password reset');
+  }
+});
+
+// Reset password
+export const resetPassword = createAsyncThunk('auth/resetPassword', async ({ token, password }, { rejectWithValue }) => {
+  try {
+    const response = await api.post(`/auth/reset-password/${token}`, { password });
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to reset password');
+  }
+});
+
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
@@ -156,6 +176,30 @@ const authSlice = createSlice({
       // Update avatar
       .addCase(updateAvatar.fulfilled, (state, action) => {
         state.user = action.payload.user;
+      })
+      // Forgot Password
+      .addCase(forgotPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Reset Password
+      .addCase(resetPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
