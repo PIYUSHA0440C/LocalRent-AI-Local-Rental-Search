@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import {
-  createBooking, getMyBookings, getLandlordBookings, getBookingById,
+  createBooking, getMyBookings, checkBookingStatus, getLandlordBookings, getBookingById,
   approveBooking, rejectBooking, activateBooking, completeBooking, cancelBooking,
 } from '../controllers/bookingController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
@@ -15,6 +15,7 @@ router.use(authenticate);
 // Tenant routes
 router.post('/', authorize(ROLES.TENANT), validateBooking, createBooking);
 router.get('/my-bookings', authorize(ROLES.TENANT), getMyBookings);
+router.get('/check-status/:listingId', authorize(ROLES.TENANT), checkBookingStatus);
 
 // Landlord routes
 router.get('/landlord-bookings', authorize(ROLES.LANDLORD), getLandlordBookings);
