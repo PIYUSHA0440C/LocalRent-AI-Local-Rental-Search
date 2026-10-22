@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getListingById } from '../store/listingSlice';
-import { createBooking } from '../store/bookingSlice';
+import { createBooking, checkBookingStatus, resetCurrentListingBooking } from '../store/bookingSlice';
 import { getListingReviews, createReview, checkReviewEligibility } from '../store/reviewSlice';
 import { formatRent, formatDate, listingTypeLabels, genderLabels, furnishingLabels, amenityLabels, trustBadgeConfig, timeAgo } from '../utils/helpers';
 import toast from 'react-hot-toast';
@@ -17,7 +17,7 @@ const ListingDetail = () => {
   const { currentListing: listing, detailLoading } = useSelector((s) => s.listings);
   const { user, isAuthenticated } = useSelector((s) => s.auth);
   const { reviews, eligibility } = useSelector((s) => s.reviews);
-  const { actionLoading: bookingLoading } = useSelector((s) => s.bookings);
+  const { actionLoading: bookingLoading, currentListingBooking } = useSelector((s) => s.bookings);
 
   const [activeImage, setActiveImage] = useState(0);
   const [showBookingForm, setShowBookingForm] = useState(false);
@@ -34,7 +34,11 @@ const ListingDetail = () => {
     dispatch(getListingReviews({ listingId: id }));
     if (isAuthenticated && user?.role === 'tenant') {
       dispatch(checkReviewEligibility(id));
+      dispatch(checkBookingStatus(id));
     }
+    return () => {
+      dispatch(resetCurrentListingBooking());
+    };
   }, [id, dispatch, isAuthenticated, user]);
 
   useEffect(() => {
@@ -115,7 +119,7 @@ const ListingDetail = () => {
   }
 
   const badge = trustBadgeConfig[listing.landlord?.trustBadge] || trustBadgeConfig.new;
-  const canBook = isAuthenticated && user?.role === 'tenant' && listing.isAvailable;
+  const canBook = isAuthenticated && user?.role === 'tenant' && listing.isAvailable && !currentListingBooking;
 
   return (
     <div className="page-container fade-in">
@@ -318,7 +322,58 @@ const ListingDetail = () => {
               <p className="text-xs text-gray-500 mt-1">+ {formatRent(listing.deposit)} deposit</p>
             </div>
 
-            {canBook ? (
+            {currentListingBooking?.status === 'requested' ? (
+              <div className="bg-amber-50 border border-amber-200/80 rounded-2xl p-5 text-center space-y-3 fade-in">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">
+                  <span>⏳ Booking Requested</span>
+                </div>
+                <h4 className="text-sm font-bold text-amber-950">Awaiting Landlord Approval</h4>
+                <p className="text-xs text-amber-800 leading-relaxed">
+                  You requested this room on <strong>{formatDate(currentListingBooking.createdAt)}</strong>. The landlord has been notified.
+                </p>
+                <Link
+                  to="/dashboard"
+                  className="btn-secondary w-full py-2.5 text-xs inline-flex items-center justify-center gap-1.5"
+                  id="view-booking-dashboard-btn"
+                >
+                  View in My Bookings
+                </Link>
+              </div>
+            ) : currentListingBooking?.status === 'approved' ? (
+              <div className="bg-emerald-50 border border-emerald-200/80 rounded-2xl p-5 text-center space-y-3 fade-in">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full">
+                  <span>✅ Request Approved</span>
+                </div>
+                <h4 className="text-sm font-bold text-emerald-950">Ready for Move-in</h4>
+                <p className="text-xs text-emerald-800 leading-relaxed">
+                  The landlord approved your booking request! Check your dashboard to view contact and move-in details.
+                </p>
+                <Link
+                  to="/dashboard"
+                  className="btn-primary w-full py-2.5 text-xs inline-flex items-center justify-center gap-1.5"
+                  id="view-approved-dashboard-btn"
+                >
+                  Go to Dashboard
+                </Link>
+              </div>
+            ) : currentListingBooking?.status === 'active' ? (
+              <div className="bg-blue-50 border border-blue-200/80 rounded-2xl p-5 text-center space-y-3 fade-in">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">
+                  <span>🏠 Active Stay</span>
+                </div>
+                <h4 className="text-sm font-bold text-blue-950">You Are Staying Here</h4>
+                <p className="text-xs text-blue-800 leading-relaxed">
+                  This room is currently your active residence.
+                </p>
+                <Link
+                  to="/dashboard"
+                  className="btn-secondary w-full py-2.5 text-xs inline-flex items-center justify-center gap-1.5"
+                  id="view-active-dashboard-btn"
+                >
+                  View My Stays
+                </Link>
+              </div>
+            ) : canBook ? (
               showBookingForm ? (
                 <form onSubmit={handleBooking} className="space-y-4">
                   <div>
@@ -337,7 +392,7 @@ const ListingDetail = () => {
                     <textarea value={bookingData.message} onChange={(e) => setBookingData((p) => ({ ...p, message: e.target.value }))}
                       placeholder="Introduce yourself..." rows={3} className="input-field text-sm resize-none" maxLength={500} />
                   </div>
-                  <button type="submit" disabled={bookingLoading} className="btn-primary w-full py-3">
+                  <button type="submit" disabled={bookingLoading} className="btn-primary w-full py-3" id="submit-booking-btn">
                     {bookingLoading ? 'Sending...' : 'Send Booking Request'}
                   </button>
                   <button type="button" onClick={() => setShowBookingForm(false)} className="btn-secondary w-full">Cancel</button>

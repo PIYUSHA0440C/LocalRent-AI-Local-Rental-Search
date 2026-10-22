@@ -73,11 +73,21 @@ export const cancelBooking = createAsyncThunk('bookings/cancel', async (id, { re
   }
 });
 
+export const checkBookingStatus = createAsyncThunk('bookings/checkStatus', async (listingId, { rejectWithValue }) => {
+  try {
+    const response = await api.get(`/bookings/check-status/${listingId}`);
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to check booking status');
+  }
+});
+
 const bookingSlice = createSlice({
   name: 'bookings',
   initialState: {
     myBookings: [],
     landlordBookings: [],
+    currentListingBooking: null,
     pagination: null,
     loading: false,
     actionLoading: false,
@@ -85,13 +95,18 @@ const bookingSlice = createSlice({
   },
   reducers: {
     clearError: (state) => { state.error = null; },
+    resetCurrentListingBooking: (state) => { state.currentListingBooking = null; },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(checkBookingStatus.fulfilled, (state, action) => {
+        state.currentListingBooking = action.payload.booking;
+      })
       .addCase(createBooking.pending, (state) => { state.actionLoading = true; state.error = null; })
       .addCase(createBooking.fulfilled, (state, action) => {
         state.actionLoading = false;
         state.myBookings.unshift(action.payload.booking);
+        state.currentListingBooking = action.payload.booking;
       })
       .addCase(createBooking.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; })
       .addCase(getMyBookings.pending, (state) => { state.loading = true; })
@@ -130,5 +145,5 @@ const bookingSlice = createSlice({
   },
 });
 
-export const { clearError } = bookingSlice.actions;
+export const { clearError, resetCurrentListingBooking } = bookingSlice.actions;
 export default bookingSlice.reducer;
